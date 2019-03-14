@@ -11,19 +11,19 @@ new Vue({
             this.gameIsRunning = !this.gameIsRunning;
             this.playerHealth = 100;
             this.monsterHealth = 100;
+            this.turns = [];
         },
         attack: function(){
             var damage = this.calculateDamage(3, 10);
             this.monsterHealth -= this.calculateDamage(3, 10);
             this.turns.unshift({
                 isPlayer: true,
-                text: 'Players hits Monster for' + damage + ' damage.'
+                text: 'Players hits Monster for ' + damage + ' damage.'
             });
                 if(this.checkWin()){
                     return;
                 }
             this.monsterAttacks();
-
         },
         monsterAttacks: function(){
             var damage = this.calculateDamage(5, 12);
@@ -41,14 +41,28 @@ new Vue({
             if(this.playerHealth <=90){
                 this.playerHealth += 10;
             }
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'Players heals by 10.'
+            });
             this.monsterAttacks();
         },
         specialAttack: function(){
-            this.monsterHealth -= this.calculateDamage(10, 20);
+            if(confirm("You can only use once per game. Want to use?")){
+            var damage = this.calculateDamage(10, 20);
+            this.monsterHealth -= damage;
                 if(this.checkWin()){
                     return;
                 }
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'Players hits Monster HARD for ' + damage + ' damage.'
+            });
             this.monsterAttacks();
+            document.getElementById("special-attack").disabled = true;
+            } else {
+                return
+            }
         },
         calculateDamage: function(min, max){
             return Math.max(Math.floor(Math.random() * max) + 1, min);
@@ -56,7 +70,7 @@ new Vue({
         giveUp: function(){
             this.gameIsRunning = !this.gameIsRunning;
             this.playerHealth = 0;
-            this.gameResults();
+            this.checkWin();
         },
         checkWin: function() {
             if(this.playerHealth <= 0){
